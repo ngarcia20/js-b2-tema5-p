@@ -23,9 +23,11 @@ const filterText = ref('');
 
 type SortKey = 'dueDate' | 'priority' | null;
 type SortDir = 'asc' | 'desc';
+type ViewMode = 'list' | 'cards';
 
 const sortKey = ref<SortKey>(null);
 const sortDir = ref<SortDir>('asc');
+const viewMode = ref<ViewMode>('list');
 
 const filteredTasks = computed(() => {
   const term = filterText.value.trim().toLowerCase();
@@ -74,6 +76,10 @@ function toggleSort(key: Exclude<SortKey, null>) {
 function clearSort() {
   sortKey.value = null;
   sortDir.value = 'asc';
+}
+
+function toggleViewMode() {
+  viewMode.value = viewMode.value === 'list' ? 'cards' : 'list';
 }
 
 async function loadTasks() {
@@ -179,6 +185,14 @@ onMounted(loadTasks);
       <button v-if="sortKey" class="btn btn-sm btn-outline-secondary" @click="clearSort">
         Limpiar orden
       </button>
+
+      <button
+        class="btn btn-sm btn-outline-info ms-auto"
+        :disabled="loading"
+        @click="toggleViewMode"
+      >
+        {{ viewMode === 'list' ? 'Vista tarjetas' : 'Vista lista' }}
+      </button>
     </div>
 
     <div class="d-flex gap-2 mb-3">
@@ -215,7 +229,8 @@ onMounted(loadTasks);
       {{ error }}
     </div>
 
-    <div v-if="!loading && sortedTasks.length" class="list-group">
+    <!-- Vista Lista -->
+    <div v-if="!loading && sortedTasks.length && viewMode === 'list'" class="list-group">
       <RouterLink
         v-for="task in sortedTasks"
         :key="task.id"
@@ -251,6 +266,54 @@ onMounted(loadTasks);
           </button>
         </div>
       </RouterLink>
+    </div>
+
+    <!-- Vista Tarjetas -->
+    <div v-if="!loading && sortedTasks.length && viewMode === 'cards'" class="row g-3">
+      <div v-for="task in sortedTasks" :key="task.id" class="col-md-6 col-lg-4">
+        <RouterLink
+          :to="{ name: 'task-detail', params: { id: task.id } }"
+          class="card h-100 text-decoration-none"
+          :class="task.completed ? 'border-success' : 'border-warning'"
+        >
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge" :class="task.completed ? 'bg-success' : 'bg-warning text-dark'">
+                {{ task.completed ? 'Hecha' : 'Pendiente' }}
+              </span>
+              <span class="badge" :class="priorityBadge(task.priority)">
+                {{ task.priority }}
+              </span>
+            </div>
+
+            <h5
+              class="card-title mb-2"
+              :class="task.completed ? 'text-decoration-line-through' : ''"
+            >
+              {{ task.name }}
+            </h5>
+
+            <p class="card-text text-muted flex-grow-1">
+              {{ task.description }}
+            </p>
+
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <small class="text-muted">
+                📅 {{ new Date(task.dueDate).toLocaleDateString() }}
+              </small>
+
+              <button
+                v-if="!task.completed"
+                class="btn btn-sm btn-outline-success"
+                @click.prevent="onCompleteTask(task.id)"
+                title="Completar"
+              >
+                ✓
+              </button>
+            </div>
+          </div>
+        </RouterLink>
+      </div>
     </div>
 
     <p v-if="!loading && tasks.length === 0" class="text-muted">No tienes tareas todavía.</p>
