@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Listado de películas</title>
+    <style>
+      .movie {
+        margin-bottom: 2rem;
+      }
+
+      img {
+        max-width: 200px;
+        display: block;
+        margin: 0.5rem 0;
+      }
+
+      button {
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="vueApp" class="card">
+      <h1>Listado de películas</h1>
+
+      <button @click="toggleFilter">
+        {{ showOnlyTheaters ? 'Mostrar todas' : 'En cines' }}
+      </button>
+
+      <div class="movie" v-for="movie in filteredMovies" :key="movie.id">
+        <h3>{{ movie.name }} ({{ movie.year }})</h3>
+
+        <img :src="movie.image" :alt="movie.name" />
+
+        <p>{{ movie.description }}</p>
+
+        <p><strong>Valoración:</strong> {{ movie.rating }}/5</p>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

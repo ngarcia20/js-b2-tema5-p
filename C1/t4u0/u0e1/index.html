@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mi agenda</title>
+  </head>
+  <body>
+    <div id="vueApp">
+      <h1>Contactos</h1>
+
+      <input
+        type="text"
+        v-model="newContact"
+        placeholder="Nombre del contacto"
+      />
+      <button @click="addContact">Añadir</button>
+
+      <p v-if="contacts.length === 0">No hay contactos en la lista.</p>
+
+      <ul v-show="contacts.length > 0">
+        <li v-for="(contact, index) in contacts" :key="index">{{ contact }}</li>
+      </ul>
+
+      <p v-if="contacts.length > 0">Total de registros: {{ totalContacts }}</p>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
